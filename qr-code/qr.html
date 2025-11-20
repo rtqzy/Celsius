@@ -14,6 +14,7 @@
       max-width: 500px;
       margin: 50px auto;
       text-align: center;
+      /* Remove hover color change for QR area */
       transition: transform 0.2s;
     }
     .tool-card:hover { transform: translateY(-5px); }
@@ -105,7 +106,7 @@
       const text = qrInput.value.trim();
       const ctx = qrCanvas.getContext('2d');
       ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
-      if (!text) return; // do not generate empty QR
+      if (!text) return;
 
       const cardWidth = document.querySelector('.tool-card').offsetWidth;
       let size = Math.min(300, cardWidth - 40);
@@ -130,15 +131,15 @@
         const img = tempDiv.querySelector('img');
         if (img) {
           qrCanvas.width = img.width;
-          qrCanvas.height = img.height + 20;
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+          qrCanvas.height = img.height;
           ctx.drawImage(img, 0, 0);
 
-          ctx.fillStyle = "rgba(0,0,0,0.5)";
-          ctx.font = "14px Arial";
+          // Add watermark inside QR code
+          ctx.fillStyle = "rgba(0,0,0,0.2)";
+          ctx.font = `${Math.floor(size/15)}px Arial`;
           ctx.textAlign = "center";
-          ctx.fillText("Made with CelciusBot.com", qrCanvas.width / 2, qrCanvas.height - 5);
+          ctx.textBaseline = "middle";
+          ctx.fillText("Made by CelciusBot.com", qrCanvas.width/2, qrCanvas.height/2);
         }
       }, 100);
     }
