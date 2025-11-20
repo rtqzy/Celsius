@@ -1,0 +1,46 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f7f7f7;
+    margin: 0;
+}
+
+.qr-generator {
+    text-align: center;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    max-width: 400px;
+}
+
+#qrInput {
+    padding: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+#generateQR {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background: #007BFF;
+    color: #fff;
+    border-radius: 6px;
+}
+
+#generateQR:hover {
+    background: #0056b3;
+}
+
+#qrCanvas {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+}
