@@ -1,47 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Generator - CelciusBot</title>
-    <!-- Use the main site CSS -->
-    <link rel="stylesheet" href="../assets/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Generator - CelciusBot</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .tool-card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .tool-card:hover { transform: translateY(-5px); }
+    .tool-card h2 { font-size: 26px; margin-bottom: 10px; color: #222; }
+    .tool-card p { font-size: 16px; color: #555; margin-bottom: 20px; }
+    .qr-steps ol {
+      text-align: left;
+      margin-bottom: 20px;
+      padding-left: 20px;
+      font-size: 15px;
+      color: #444;
+    }
+    #qrInput {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .qr-buttons {
+      margin-bottom: 20px;
+    }
+    .qr-buttons button {
+      margin: 5px;
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      transition: background-color 0.2s;
+    }
+    .qr-buttons button:hover { background-color: #0056b3; }
+    #qrCanvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      max-width: 100%;
+      height: auto;
+    }
+    @media (max-width: 600px) {
+      .tool-card { padding: 20px; margin: 30px 15px; }
+      .tool-card h2 { font-size: 22px; }
+      #qrInput { font-size: 15px; padding: 10px; }
+      .qr-buttons button { padding: 10px 20px; font-size: 15px; }
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>QR Code Generator 🔗</h1>
-        <p>Create a QR code for any text or link. Easy steps below!</p>
-    </header>
+  <header>
+    <h1>QR Code Generator 🔗</h1>
+    <p>Create a QR code for any text or link quickly and easily!</p>
+  </header>
 
-    <main>
-        <section class="tool-section">
-            <!-- Step Guide -->
-            <div class="qr-steps">
-                <ol>
-                    <li>Enter the text or URL you want to turn into a QR code.</li>
-                    <li>Click "Generate QR Code".</li>
-                    <li>Preview your QR code below.</li>
-                    <li>Click "Download QR Code" to save it as an image.</li>
-                </ol>
-            </div>
+  <main>
+    <div class="tool-card">
+      <div class="qr-steps">
+        <ol>
+          <li>Enter the text or URL you want to turn into a QR code.</li>
+          <li>QR code will generate live as you type.</li>
+          <li>Click "Download QR Code" or "Copy QR Code".</li>
+        </ol>
+      </div>
 
-            <!-- Input & Buttons -->
-            <input type="text" id="qrInput" placeholder="Enter text or URL">
-            <div class="qr-buttons">
-                <button id="generateQR">Generate QR Code</button>
-                <button id="downloadQR">Download QR Code</button>
-            </div>
+      <input type="text" id="qrInput" placeholder="Enter text or URL">
+      <div class="qr-buttons">
+        <button id="downloadQR">Download QR Code</button>
+        <button id="copyQR">Copy QR Code</button>
+      </div>
 
-            <!-- QR Code Preview -->
-            <canvas id="qrCanvas"></canvas>
-        </section>
-    </main>
+      <canvas id="qrCanvas"></canvas>
+    </div>
+  </main>
 
-    <footer>
-        <p>© 2025 CelciusBot • Built by Buford</p>
-    </footer>
+  <footer>
+    <p>© 2025 CelciusBot • Built by Buford</p>
+  </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const qrInput = document.getElementById('qrInput');
+    const qrCanvas = document.getElementById('qrCanvas');
+    const downloadBtn = document.getElementById('downloadQR');
+    const copyBtn = document.getElementById('copyQR');
+
+    function generateQRCode() {
+      const text = qrInput.value.trim();
+      const ctx = qrCanvas.getContext('2d');
+      ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+      if (!text) return; // do not generate empty QR
+
+      const cardWidth = document.querySelector('.tool-card').offsetWidth;
+      let size = Math.min(300, cardWidth - 40);
+
+      const maxChars = 100;
+      if (text.length > maxChars) {
+        size = size * (maxChars / text.length);
+        if (size < 150) size = 150;
+      }
+
+      const tempDiv = document.createElement('div');
+      new QRCode(tempDiv, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(() => {
+        const img = tempDiv.querySelector('img');
+        if (img) {
+          qrCanvas.width = img.width;
+          qrCanvas.height = img.height + 20;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, qrCanvas.width, qrCanvas.height);
+          ctx.drawImage(img, 0, 0);
+
+          ctx.fillStyle = "rgba(0,0,0,0.5)";
+          ctx.font = "14px Arial";
+          ctx.textAlign = "center";
+          ctx.fillText("Made with CelciusBot.com", qrCanvas.width / 2, qrCanvas.height - 5);
+        }
+      }, 100);
+    }
+
+    // Live QR generation as user types
+    qrInput.addEventListener('input', generateQRCode);
+
+    // Download QR code as PNG
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'qr-code.png';
+      link.href = qrCanvas.toDataURL("image/png");
+      link.click();
+    });
+
+    // Copy QR code to clipboard
+    copyBtn.addEventListener('click', async () => {
+      try {
+        qrCanvas.toBlob(async (blob) => {
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob })
+          ]);
+          alert("QR Code copied to clipboard!");
+        });
+      } catch (err) {
+        console.error("Failed to copy QR code:", err);
+        alert("Failed to copy QR code.");
+      }
+    });
+  </script>
 </body>
 </html>
