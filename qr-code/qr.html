@@ -2,16 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator - CelciusBot</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Use the main site CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <div class="qr-generator">
-        <h2>QR Code Generator</h2>
-        <input type="text" id="qrInput" placeholder="Enter text or URL">
-        <button id="generateQR">Generate QR Code</button>
-        <canvas id="qrCanvas"></canvas>
-    </div>
+    <header>
+        <h1>QR Code Generator 🔗</h1>
+        <p>Create a QR code for any text or link. Easy steps below!</p>
+    </header>
+
+    <main>
+        <section class="tool-section">
+            <!-- Step Guide -->
+            <div class="qr-steps">
+                <ol>
+                    <li>Enter the text or URL you want to turn into a QR code.</li>
+                    <li>Click "Generate QR Code".</li>
+                    <li>Preview your QR code below.</li>
+                    <li>Click "Download QR Code" to save it as an image.</li>
+                </ol>
+            </div>
+
+            <!-- Input & Buttons -->
+            <input type="text" id="qrInput" placeholder="Enter text or URL">
+            <div class="qr-buttons">
+                <button id="generateQR">Generate QR Code</button>
+                <button id="downloadQR">Download QR Code</button>
+            </div>
+
+            <!-- QR Code Preview -->
+            <canvas id="qrCanvas"></canvas>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 CelciusBot • Built by Buford</p>
+    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="script.js"></script>
