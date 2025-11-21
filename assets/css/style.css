@@ -118,3 +118,37 @@ footer {
     color: var(--subtext);
     font-size: 0.9rem;
 }
+
+/* =======================================================
+      PRIORITY TOOLS (YT → MP3 + Font Generator)
+      Highlighted, premium appearance (NO ICONS)
+======================================================= */
+
+.tool-card.priority {
+    border: 2px solid rgba(255, 174, 0, 0.6);
+    background: rgba(255, 200, 80, 0.08);
+    transform: scale(1.05);
+    transition: 0.25s ease;
+}
+
+/* Hover glow effect */
+.tool-card.priority:hover {
+    border-color: rgba(255, 190, 0, 0.9);
+    box-shadow: 0 0 18px rgba(255, 190, 0, 0.4);
+    transform: scale(1.08);
+}
+
+/* “MOST USED” Ribbon */
+.tool-card.priority::before {
+    content: "MOST USED";
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(90deg, #ffb000, #ff8800);
+    color: #111;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
