@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Generator - CelciusBot</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .tool-card {
+      max-width: 500px;
+      margin: 50px auto;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 30px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .tool-card input, .tool-card select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .tool-card button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: var(--accent);
+      color: #000;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .tool-card button:hover { background-color: var(--accent2); }
+
+    #preview {
+      margin-top: 20px;
+      font-size: 22px;
+      word-wrap: break-word;
+      color: var(--text);
+      min-height: 50px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Font Generator 🎨</h1>
+    <p>Type your text and see it in fancy fonts. Copy it instantly!</p>
+  </header>
+
+  <main>
+    <div class="tool-card">
+      <input type="text" id="textInput" placeholder="Enter text here">
+      <select id="fontSelect">
+        <option value="bold">Bold 𝗕𝗼𝗹𝗱</option>
+        <option value="italic">Italic 𝘪𝘵𝘢𝘭𝘪𝘤</option>
+        <option value="bubble">Bubble ⒷⓤⒷⒷⓛⒺ</option>
+        <option value="squared">Squared 🄱🅄🄱🄱🄻🄴</option>
+        <option value="upside">Upside ⅄SԀIԀƎ</option>
+      </select>
+      <button id="copyBtn">Copy Text</button>
+      <div id="preview"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 CelciusBot • Built by Buford</p>
+  </footer>
+
+  <script>
+    const textInput = document.getElementById('textInput');
+    const fontSelect = document.getElementById('fontSelect');
+    const preview = document.getElementById('preview');
+    const copyBtn = document.getElementById('copyBtn');
+
+    const fonts = {
+      bold: text => text.replace(/[A-Za-z]/g, c => String.fromCharCode(c.charCodeAt(0)+0x1D400-65+(c<='Z'?0:26))),
+      italic: text => text.replace(/[A-Za-z]/g, c => String.fromCharCode(c.charCodeAt(0)+0x1D434-65+(c<='Z'?0:26))),
+      bubble: text => text.replace(/[A-Za-z0-9]/g, c => {
+        const map = 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ0123456789'.split('');
+        const index = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c);
+        return index >= 0 ? map[index] : c;
+      }),
+      squared: text => text.replace(/[A-Za-z0-9]/g, c => {
+        const map = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789'.split('');
+        const index = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c);
+        return index >= 0 ? map[index] : c;
+      }),
+      upside: text => text.split('').reverse().map(c => {
+        const map = {'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z','A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'ʞ','L':'⅃','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ὁ','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z'};
+        return map[c] || c;
+      }).join('')
+    };
+
+    function updatePreview() {
+      const text = textInput.value;
+      const font = fontSelect.value;
+      preview.textContent = fonts[font](text);
+    }
+
+    textInput.addEventListener('input', updatePreview);
+    fontSelect.addEventListener('change', updatePreview);
+
+    copyBtn.addEventListener('click', () => {
+      if (!preview.textContent) return alert('Nothing to copy!');
+      navigator.clipboard.writeText(preview.textContent).then(() => {
+        alert('Text copied to clipboard!');
+      });
+    });
+  </script>
+</body>
+</html>
