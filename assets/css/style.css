@@ -129,6 +129,7 @@ footer {
     background: rgba(255, 200, 80, 0.08);
     transform: scale(1.05);
     transition: 0.25s ease;
+    animation: pulsePriority 2.5s infinite ease-in-out;
 }
 
 /* Hover glow effect */
@@ -151,4 +152,13 @@ footer {
     padding: 3px 8px;
     border-radius: 6px;
     box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
+
+/* -----------------------
+      PULSE ANIMATION
+------------------------*/
+@keyframes pulsePriority {
+    0% { box-shadow: 0 0 8px rgba(255, 190, 0, 0.3); }
+    50% { box-shadow: 0 0 16px rgba(255, 190, 0, 0.5); }
+    100% { box-shadow: 0 0 8px rgba(255, 190, 0, 0.3); }
 }
