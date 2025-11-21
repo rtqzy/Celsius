@@ -1,4 +1,4 @@
- html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -59,44 +59,26 @@
 
     <header>
         <h1>YouTube → MP3 Converter</h1>
-        <p>Paste a YouTube link and we’ll open a free external MP3 downloader.</p>
+        <p>Click the button to go to a free external MP3 downloader.</p>
     </header>
 
     <main>
         <div class="tool-card">
-            <input id="ytInput" type="text" placeholder="Enter YouTube link">
-            <button id="goBtn">Convert to MP3</button>
+            <button id="goBtn">Go to Downloader</button>
         </div>
     </main>
 
     <script>
         const goBtn = document.getElementById("goBtn");
-        const ytInput = document.getElementById("ytInput");
         const overlay = document.getElementById("loadingOverlay");
 
-        function isValidYouTubeUrl(url) {
-            const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-            return regex.test(url);
-        }
-
         goBtn.addEventListener("click", () => {
-            const url = ytInput.value.trim();
-            if (!url) return alert("Please enter a YouTube link!");
-            if (!isValidYouTubeUrl(url)) return alert("Enter a valid YouTube link!");
-
             overlay.style.display = "block"; // show loading
 
-            // Redirect to SaveTheVideo external service
-            const redirectUrl = "https://youconvert.org/=" + encodeURIComponent(url);
-
+            // Redirect to YouConvert homepage
             setTimeout(() => {
-                window.location.href = redirectUrl;
+                window.location.href = "https://youconvert.org/";
             }, 500); // short delay so user sees loading
-        });
-
-        // Optional: handle Enter key
-        ytInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") goBtn.click();
         });
     </script>
 
