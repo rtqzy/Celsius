@@ -1,119 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Font Generator - CelciusBot</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <style>
-    .tool-card {
-      max-width: 500px;
-      margin: 50px auto;
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 30px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Generator - CelciusBot</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Pacifico&family=Courier+Prime&family=Playfair+Display&display=swap" rel="stylesheet">
+<style>
+body {
+  overflow: hidden;
+  position: relative;
+  background: #0e0f11;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+}
+.floating-letter {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  font-weight: 600;
+  opacity: 0.08;
+  animation: float linear infinite;
+}
+@keyframes float {
+  0% { transform: translate(var(--x0), var(--y0)) rotate(var(--r0)) scale(var(--s0)); }
+  50% { transform: translate(var(--x1), var(--y1)) rotate(var(--r1)) scale(var(--s1)); }
+  100% { transform: translate(var(--x2), var(--y2)) rotate(var(--r2)) scale(var(--s2)); }
+}
 
-    .tool-card input, .tool-card select {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    .tool-card button {
-      padding: 12px 25px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: var(--accent);
-      color: #000;
-      font-weight: 600;
-      transition: background-color 0.2s;
-    }
-
-    .tool-card button:hover { background-color: var(--accent2); }
-
-    #preview {
-      margin-top: 20px;
-      font-size: 22px;
-      word-wrap: break-word;
-      color: var(--text);
-      min-height: 50px;
-    }
-  </style>
+.tool-card {
+  max-width: 600px;
+  margin: 80px auto;
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+  position: relative;
+  z-index: 1;
+}
+.tool-card input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  box-sizing: border-box;
+  background: #0e0f11;
+  color: #fff;
+}
+.font-list {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #0e0f11;
+}
+.font-item {
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.font-item:hover {
+  background: rgba(255, 159, 67, 0.2);
+}
+.font-item.selected {
+  background: rgba(255, 159, 67, 0.5);
+}
+.tool-card button {
+  padding: 12px 25px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #ff9f43;
+  color: #000;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+.tool-card button:hover { background-color: #ffca3a; }
+#preview {
+  margin-top: 20px;
+  font-size: 22px;
+  word-wrap: break-word;
+  min-height: 50px;
+  user-select: all;
+  color: #fff;
+}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Font Generator 🎨</h1>
-    <p>Type your text and see it in fancy fonts. Copy it instantly!</p>
-  </header>
 
-  <main>
-    <div class="tool-card">
-      <input type="text" id="textInput" placeholder="Enter text here">
-      <select id="fontSelect">
-        <option value="bold">Bold 𝗕𝗼𝗹𝗱</option>
-        <option value="italic">Italic 𝘪𝘵𝘢𝘭𝘪𝘤</option>
-        <option value="bubble">Bubble ⒷⓤⒷⒷⓛⒺ</option>
-        <option value="squared">Squared 🄱🅄🄱🄱🄻🄴</option>
-        <option value="upside">Upside ⅄SԀIԀƎ</option>
-      </select>
-      <button id="copyBtn">Copy Text</button>
-      <div id="preview"></div>
-    </div>
-  </main>
+<header>
+  <h1>Font Generator 🎨</h1>
+  <p>Type your text and pick the font visually!</p>
+</header>
 
-  <footer>
-    <p>© 2025 CelciusBot • Built by Buford</p>
-  </footer>
+<main>
+<div class="tool-card">
+  <input type="text" id="textInput" placeholder="Enter text here">
+  <div class="font-list" id="fontList"></div>
+  <button id="copyBtn">Copy Text</button>
+  <div id="preview"></div>
+</div>
+</main>
 
-  <script>
-    const textInput = document.getElementById('textInput');
-    const fontSelect = document.getElementById('fontSelect');
-    const preview = document.getElementById('preview');
-    const copyBtn = document.getElementById('copyBtn');
+<footer>
+<p>© 2025 CelciusBot • Built by Buford</p>
+</footer>
 
-    const fonts = {
-      bold: text => text.replace(/[A-Za-z]/g, c => String.fromCharCode(c.charCodeAt(0)+0x1D400-65+(c<='Z'?0:26))),
-      italic: text => text.replace(/[A-Za-z]/g, c => String.fromCharCode(c.charCodeAt(0)+0x1D434-65+(c<='Z'?0:26))),
-      bubble: text => text.replace(/[A-Za-z0-9]/g, c => {
-        const map = 'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ0123456789'.split('');
-        const index = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c);
-        return index >= 0 ? map[index] : c;
-      }),
-      squared: text => text.replace(/[A-Za-z0-9]/g, c => {
-        const map = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789'.split('');
-        const index = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c);
-        return index >= 0 ? map[index] : c;
-      }),
-      upside: text => text.split('').reverse().map(c => {
-        const map = {'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z','A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'ʞ','L':'⅃','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ὁ','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z'};
-        return map[c] || c;
-      }).join('')
-    };
+<script>
+// Floating letters background
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const colors = ["#ff6b6b","#feca57","#48dbfb","#1dd1a1","#5f27cd","#ff9ff3","#00d2d3","#f368e0","#ff9f43"];
+let floatingLetters = [];
 
-    function updatePreview() {
-      const text = textInput.value;
-      const font = fontSelect.value;
-      preview.textContent = fonts[font](text);
-    }
+function createFloatingLetters() {
+  for(let i=0;i<120;i++){
+    const span = document.createElement('span');
+    span.className = 'floating-letter';
+    span.textContent = letters[Math.floor(Math.random()*letters.length)];
+    span.style.left = Math.random()*100+'vw';
+    span.style.top = Math.random()*100+'vh';
+    span.style.fontSize = 12+Math.random()*28+'px';
+    span.style.color = colors[Math.floor(Math.random()*colors.length)];
+    span.style.animationDuration = 30+Math.random()*30+'s';
+    span.style.setProperty('--x0',`${Math.random()*100}vw`);
+    span.style.setProperty('--y0',`${Math.random()*100}vh`);
+    span.style.setProperty('--x1',`${Math.random()*100}vw`);
+    span.style.setProperty('--y1',`${Math.random()*100}vh`);
+    span.style.setProperty('--x2',`${Math.random()*100}vw`);
+    span.style.setProperty('--y2',`${Math.random()*100}vh`);
+    span.style.setProperty('--r0',`${Math.random()*360}deg`);
+    span.style.setProperty('--r1',`${Math.random()*360}deg`);
+    span.style.setProperty('--r2',`${Math.random()*360}deg`);
+    span.style.setProperty('--s0',0.5+Math.random()*0.8);
+    span.style.setProperty('--s1',0.5+Math.random()*0.8);
+    span.style.setProperty('--s2',0.5+Math.random()*0.8);
+    document.body.appendChild(span);
+    floatingLetters.push(span);
+  }
+}
 
-    textInput.addEventListener('input', updatePreview);
-    fontSelect.addEventListener('change', updatePreview);
+// Font transformations
+const textInput = document.getElementById('textInput');
+const fontList = document.getElementById('fontList');
+const preview = document.getElementById('preview');
+const copyBtn = document.getElementById('copyBtn');
 
-    copyBtn.addEventListener('click', () => {
-      if (!preview.textContent) return alert('Nothing to copy!');
-      navigator.clipboard.writeText(preview.textContent).then(() => {
-        alert('Text copied to clipboard!');
-      });
+const fontFuncs = {
+  "Bold": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D400-65:0x1D400-97+26))),
+  "Italic": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D434-65:0x1D434-97+26))),
+  "Bubble": t=>t.replace(/[A-Za-z0-9]/g,c=>'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ0123456789'['ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c)]||c),
+  "Squared": t=>t.replace(/[A-Za-z0-9]/g,c=>'🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789'['ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c)]||c),
+  "Upside": t=>t.split('').reverse().map(c=>({'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z','A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'ʞ','L':'⅃','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ὁ','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z'}[c]||c)).join(''),
+  "SmallCaps": t=>t.replace(/[a-z]/g,c=>String.fromCharCode(c.charCodeAt(0)-32+0x1D00)),
+  "Monospace": t=>t.replace(/[A-Za-z0-9]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D670-65:0x1D670-97+26))),
+  "Script": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D49C-65:0x1D49C-97+26))),
+  "Fraktur": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D504-65:0x1D504-97+26))),
+  "Cursive1": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D49C-65:0x1D49C-97+26))),
+  "Cursive2": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D4B6-65:0x1D4B6-97+26))),
+  "Cursive3": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D4D0-65:0x1D4D0-97+26))),
+  "Fullwidth": t=>t.replace(/[A-Za-z0-9]/g,c=>String.fromCharCode(c.charCodeAt(0)+0xFF00-0x20))
+};
+
+const fontFamilies = {
+  "Bold": "'Arial Black', Gadget, sans-serif",
+  "Italic": "Georgia, serif",
+  "Bubble": "'Comic Sans MS', cursive, sans-serif",
+  "Squared": "Tahoma, Geneva, sans-serif",
+  "Upside": "Verdana, sans-serif",
+  "SmallCaps": "'Palatino Linotype', 'Book Antiqua', Palatino, serif",
+  "Monospace": "'Courier New', monospace",
+  "Script": "'Brush Script MT', cursive",
+  "Fraktur": "'Times New Roman', serif",
+  "Cursive1": "'Lucida Handwriting', cursive",
+  "Cursive2": "'Segoe Script', cursive",
+  "Cursive3": "'Bradley Hand', cursive",
+  "Fullwidth": "Arial, sans-serif"
+};
+
+// Build font list with clickable items
+function updateFontList() {
+  const input = textInput.value || "Preview Text";
+  fontList.innerHTML = "";
+  for (const key in fontFuncs) {
+    const div = document.createElement('div');
+    div.className = 'font-item';
+    div.textContent = input; // preview shows normal letters
+    div.style.fontFamily = fontFamilies[key] || "sans-serif";
+    div.addEventListener('click', () => {
+      document.querySelectorAll('.font-item').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      preview.textContent = fontFuncs[key](textInput.value);
+      // update floating letters font
+      floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[key] || "sans-serif");
     });
-  </script>
+    fontList.appendChild(div);
+  }
+  // select first by default
+  fontList.firstChild?.classList.add('selected');
+  preview.textContent = fontFuncs[Object.keys(fontFuncs)[0]](textInput.value);
+  floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[Object.keys(fontFuncs)[0]] || "sans-serif");
+}
+
+textInput.addEventListener('input', updateFontList);
+copyBtn.addEventListener('click',()=>{
+  if(!preview.textContent) return alert('Nothing to copy!');
+  navigator.clipboard.writeText(preview.textContent).then(()=>alert('Copied to clipboard!'));
+});
+
+// Initialize
+createFloatingLetters();
+updateFontList();
+</script>
 </body>
 </html>
