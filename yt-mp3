@@ -1,1 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube → MP3 - CelciusBot</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    .tool-card {
+      background-color: #15171a;
+      border-radius: 18px;
+      padding: 30px;
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    }
+    .tool-card h2 { font-size: 26px; margin-bottom: 10px; color: #6ce0ff; }
+    .tool-card p { font-size: 16px; color: #a7a7a7; margin-bottom: 20px; }
+    #ytUrl {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 12px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #4cb4ff;
+      color: #000;
+      transition: background-color 0.2s;
+    }
+    button:hover { background-color: #6ce0ff; }
+    #downloadLink { display: none; }
+    .yt-steps ol {
+      text-align: left;
+      margin-bottom: 20px;
+      padding-left: 20px;
+      font-size: 15px;
+      color: #e5e5e5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>YouTube → MP3 🔊</h1>
+    <p>Convert YouTube videos to MP3 audio fast and easily!</p>
+  </header>
 
+  <main>
+    <div class="tool-card">
+      <div class="yt-steps">
+        <ol>
+          <li>Paste your YouTube video URL below.</li>
+          <li>Click "Convert to MP3".</li>
+          <li>Your MP3 will download automatically.</li>
+        </ol>
+      </div>
+
+      <input type="text" id="ytUrl" placeholder="Paste YouTube link">
+      <button id="convertBtn">Convert to MP3</button>
+      <a id="downloadLink"></a>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 CelciusBot • Built by Buford</p>
+  </footer>
+
+  <script>
+    document.getElementById("convertBtn").onclick = () => {
+      const url = document.getElementById("ytUrl").value.trim();
+      if (!url) return alert("Enter a valid YouTube URL.");
+
+      const download = document.getElementById("downloadLink");
+      download.href = `/api/yt?url=${encodeURIComponent(url)}`;
+      download.download = 'video.mp3';
+      download.click();
+    };
+  </script>
+</body>
+</html>
