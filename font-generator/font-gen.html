@@ -182,34 +182,45 @@ const fontFamilies = {
   "Fullwidth": "Arial, sans-serif"
 };
 
-// Build font list with clickable items
+// Build font list
 function updateFontList() {
   const input = textInput.value || "Preview Text";
   fontList.innerHTML = "";
   for (const key in fontFuncs) {
     const div = document.createElement('div');
     div.className = 'font-item';
-    div.textContent = input; // preview shows normal letters
+    div.textContent = input; 
     div.style.fontFamily = fontFamilies[key] || "sans-serif";
     div.addEventListener('click', () => {
       document.querySelectorAll('.font-item').forEach(el => el.classList.remove('selected'));
       div.classList.add('selected');
       preview.textContent = fontFuncs[key](textInput.value);
-      // update floating letters font
       floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[key] || "sans-serif");
     });
     fontList.appendChild(div);
   }
-  // select first by default
   fontList.firstChild?.classList.add('selected');
   preview.textContent = fontFuncs[Object.keys(fontFuncs)[0]](textInput.value);
   floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[Object.keys(fontFuncs)[0]] || "sans-serif");
 }
 
 textInput.addEventListener('input', updateFontList);
-copyBtn.addEventListener('click',()=>{
+
+// Smart copy
+copyBtn.addEventListener('click', () => {
   if(!preview.textContent) return alert('Nothing to copy!');
-  navigator.clipboard.writeText(preview.textContent).then(()=>alert('Copied to clipboard!'));
+  const testSpan = document.createElement('span');
+  testSpan.style.position = 'absolute';
+  testSpan.style.opacity = 0;
+  testSpan.style.fontFamily = "'Arial Unicode MS', 'Segoe UI Symbol', sans-serif";
+  testSpan.textContent = preview.textContent;
+  document.body.appendChild(testSpan);
+  const canRender = testSpan.offsetWidth > 0 && testSpan.offsetHeight > 0;
+  document.body.removeChild(testSpan);
+
+  let textToCopy = canRender ? preview.textContent : (textInput.value || "Preview Text");
+  if(!canRender) alert('Your system may not support fancy fonts. Copied plain text instead.');
+  navigator.clipboard.writeText(textToCopy).then(()=>alert('Copied to clipboard!'));
 });
 
 // Initialize
