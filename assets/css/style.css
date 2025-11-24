@@ -16,12 +16,7 @@
     --shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
 body {
     background: var(--bg);
@@ -33,28 +28,13 @@ body {
 /* -----------------------
      HEADER
 ------------------------*/
-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-header h1 {
-    font-size: 2.8rem;
-    font-weight: 700;
-    letter-spacing: -1px;
-    color: var(--accent);
-}
-
-header p {
-    margin-top: 8px;
-    font-size: 1.2rem;
-    color: var(--subtext);
-}
+header { text-align: center; margin-bottom: 40px; }
+header h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -1px; color: var(--accent); }
+header p { margin-top: 8px; font-size: 1.2rem; color: var(--subtext); }
 
 /* -----------------------
      TOOL GRID
 ------------------------*/
-
 .tool-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -75,23 +55,10 @@ header p {
     position: relative;
 }
 
-.tool-card:hover {
-    transform: translateY(-4px);
-    background: #1c1f22;
-    border-color: rgba(255,255,255,0.1);
-}
+.tool-card:hover { transform: translateY(-4px); background: #1c1f22; border-color: rgba(255,255,255,0.1); }
 
-.tool-card h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--accent2);
-}
-
-.tool-card p {
-    margin-top: 10px;
-    font-size: 0.95rem;
-    color: var(--subtext);
-}
+.tool-card h2 { font-size: 1.3rem; font-weight: 600; color: var(--accent2); }
+.tool-card p { margin-top: 10px; font-size: 0.95rem; color: var(--subtext); }
 
 /* NEW badge */
 .tool-card.new::after {
@@ -107,23 +74,7 @@ header p {
     font-weight: 700;
 }
 
-/* -----------------------
-      FOOTER
-------------------------*/
-
-footer {
-    text-align: center;
-    margin-top: 40px;
-    padding: 20px;
-    color: var(--subtext);
-    font-size: 0.9rem;
-}
-
-/* =======================================================
-      PRIORITY TOOLS (YT → MP3 + Font Generator)
-      Highlighted, premium appearance (NO ICONS)
-======================================================= */
-
+/* PRIORITY TOOLS */
 .tool-card.priority {
     border: 2px solid rgba(255, 174, 0, 0.6);
     background: rgba(255, 200, 80, 0.08);
@@ -132,14 +83,12 @@ footer {
     animation: pulsePriority 2.5s infinite ease-in-out;
 }
 
-/* Hover glow effect */
 .tool-card.priority:hover {
     border-color: rgba(255, 190, 0, 0.9);
     box-shadow: 0 0 18px rgba(255, 190, 0, 0.4);
     transform: scale(1.08);
 }
 
-/* “MOST USED” Ribbon */
 .tool-card.priority::before {
     content: "MOST USED";
     position: absolute;
@@ -154,11 +103,100 @@ footer {
     box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
 
-/* -----------------------
-      PULSE ANIMATION
-------------------------*/
+/* PULSE ANIMATION */
 @keyframes pulsePriority {
     0% { box-shadow: 0 0 8px rgba(255, 190, 0, 0.3); }
     50% { box-shadow: 0 0 16px rgba(255, 190, 0, 0.5); }
     100% { box-shadow: 0 0 8px rgba(255, 190, 0, 0.3); }
 }
+
+/* -----------------------
+      FOOTER
+------------------------*/
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: var(--subtext);
+    font-size: 0.9rem;
+}
+
+/* =========================
+   WEATHER OVERLAYS (Adaptive)
+========================= */
+.overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: screen;
+    opacity: 0.95;
+}
+
+/* Rain */
+.rain { position: absolute; inset: 0; overflow: hidden; }
+.raindrop {
+    position: absolute;
+    width: 2px; height: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    opacity: 0.4;
+    border-radius: 50%;
+    transform: translateY(-150%);
+    animation: fall linear infinite;
+}
+@keyframes fall { 0% { transform: translateY(-150%) rotate(0deg); opacity: 0.4; } 100% { transform: translateY(120vh) rotate(360deg); opacity: 0; } }
+
+/* Snow */
+.snow { position: absolute; inset: 0; overflow: hidden; }
+.flake {
+    position: absolute; border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    transform: translateY(-150%);
+    animation: sfall linear infinite;
+}
+@keyframes sfall { 0% { transform: translateY(-150%) rotate(0deg); opacity: 0.8; } 100% { transform: translateY(110vh) rotate(180deg); opacity: 0.2; } }
+
+/* Sun Glow */
+.sun-glow {
+    position: absolute; top: 6%; right: 18%;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center, rgba(255,210,105,0.9), rgba(255,120,40,0.05));
+    filter: blur(40px);
+    animation: pulseSun 6s ease-in-out infinite alternate;
+}
+@keyframes pulseSun { 0% { transform: scale(0.95); opacity: 0.25; } 50% { transform: scale(1.05); opacity: 0.35; } 100% { transform: scale(0.95); opacity: 0.25; } }
+
+/* Clouds */
+.clouds {
+    position: absolute;
+    inset: 0;
+    background-image: url('/mnt/data/4460a265-7441-4b04-93c9-050944a62711.png');
+    background-repeat: no-repeat;
+    background-position: 80% 5%;
+    background-size: 320px;
+    opacity: 0.08;
+    animation: driftClouds 120s linear infinite;
+}
+@keyframes driftClouds { 0% { transform: translateX(-10vw); } 100% { transform: translateX(110vw); } }
+
+/* Fog */
+.fog {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.03));
+    opacity: 0.1;
+    animation: driftFog 90s linear infinite alternate;
+}
+@keyframes driftFog { 0% { transform: translateX(0); } 100% { transform: translateX(10vw); } }
+
+/* Storm lightning flash */
+.flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+    opacity: 0;
+    animation: flashAnim 6s linear infinite;
+}
+@keyframes flashAnim { 0%, 96% { opacity: 0; } 97% { opacity: 0.8; } 98% { opacity: 0.05; } 99% { opacity: 0.9; } 100% { opacity: 0; } }
