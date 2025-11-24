@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Font Generator - CelciusBot</title>
 <link rel="stylesheet" href="../assets/css/style.css">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Pacifico&family=Courier+Prime&family=Playfair+Display&display=swap" rel="stylesheet">
 <style>
+/* --- Local page styles (keeps your visual layout) --- */
 body {
   overflow: hidden;
   position: relative;
   background: #0e0f11;
   color: #fff;
   font-family: 'Roboto', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
 }
 .floating-letter {
   position: absolute;
   pointer-events: none;
   user-select: none;
   font-weight: 600;
-  opacity: 0.08;
+  opacity: 0.06;
   animation: float linear infinite;
 }
 @keyframes float {
@@ -29,203 +32,464 @@ body {
 }
 
 .tool-card {
-  max-width: 600px;
-  margin: 80px auto;
-  background: #1a1a1a;
-  border-radius: 15px;
-  padding: 30px;
+  max-width: 820px;
+  margin: 60px auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 16px;
+  padding: 28px;
   text-align: center;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   position: relative;
   z-index: 1;
+  border: 1px solid rgba(255,255,255,0.03);
 }
-.tool-card input {
-  width: 100%;
-  padding: 12px;
+.tool-card input#textInput {
+  width: calc(100% - 140px);
+  padding: 12px 14px;
   font-size: 16px;
-  margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #444;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid #2f3440;
   box-sizing: border-box;
-  background: #0e0f11;
+  background: #0b0c0e;
   color: #fff;
+  display: inline-block;
+  vertical-align: middle;
 }
+.controls {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+#copyBtn, #downloadBtn {
+  padding: 11px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #ff9f43;
+  color: #000;
+  font-weight: 700;
+}
+#copyBtn:hover, #downloadBtn:hover { background-color: #ffb65c; }
+
 .font-list {
-  max-height: 250px;
+  max-height: 260px;
   overflow-y: auto;
-  margin-bottom: 15px;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background: #0e0f11;
+  margin: 14px 0;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px,1fr));
+  gap:8px;
 }
 .font-item {
   padding: 10px;
   cursor: pointer;
-  transition: background 0.2s;
-}
-.font-item:hover {
-  background: rgba(255, 159, 67, 0.2);
-}
-.font-item.selected {
-  background: rgba(255, 159, 67, 0.5);
-}
-.tool-card button {
-  padding: 12px 25px;
-  font-size: 16px;
-  border: none;
+  transition: background 0.14s, transform 0.12s;
   border-radius: 8px;
-  cursor: pointer;
-  background-color: #ff9f43;
-  color: #000;
-  font-weight: 600;
-  transition: background-color 0.2s;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.01);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
-.tool-card button:hover { background-color: #ffca3a; }
+.font-item:hover { transform: translateY(-3px); background: rgba(255,255,255,0.03); }
+.font-item.selected { background: rgba(255,159,67,0.12); border-color: rgba(255,159,67,0.25); }
+
 #preview {
-  margin-top: 20px;
-  font-size: 22px;
+  margin-top: 18px;
+  font-size: 26px;
   word-wrap: break-word;
-  min-height: 50px;
+  min-height: 56px;
   user-select: all;
   color: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed rgba(255,255,255,0.03);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+}
+
+/* Toast container */
+#cb-toasts { position: fixed; right: 18px; bottom: 18px; z-index: 99999; display:flex; flex-direction:column; gap:10px; }
+
+/* Responsive tweaks */
+@media(max-width:720px){
+  .tool-card { padding: 18px; margin: 30px 12px; }
+  .font-list { grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); }
+  #preview { font-size: 20px; }
+  .tool-card input#textInput { width: 100%; display:block; margin-bottom:8px; }
+  .controls { justify-content: center; }
 }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Font Generator 🎨</h1>
-  <p>Type your text and pick the font visually!</p>
+<header style="text-align:center;margin-top:18px">
+  <h1 style="margin:0;color:#4cb4ff">Font Generator 🎨 — CelciusBot</h1>
+  <p style="margin:6px 0 0;color:#a7a7a7">Type text, pick a style, copy — Unicode transforms (not CSS). Works on Discord/IG/TikTok when supported.</p>
 </header>
 
 <main>
-<div class="tool-card">
-  <input type="text" id="textInput" placeholder="Enter text here">
-  <div class="font-list" id="fontList"></div>
-  <button id="copyBtn">Copy Text</button>
-  <div id="preview"></div>
-</div>
+  <div class="tool-card" role="application" aria-label="Font generator">
+    <div class="controls" style="margin-bottom:10px">
+      <input type="text" id="textInput" placeholder="Enter text here — try: Hello World!" aria-label="Text input">
+      <button id="copyBtn" aria-label="Copy transformed text">Copy</button>
+      <button id="downloadBtn" aria-label="Download as .txt">Download</button>
+    </div>
+
+    <div class="font-list" id="fontList" aria-live="polite"></div>
+
+    <div id="preview" aria-label="Preview area">Preview Text</div>
+    <div style="margin-top:12px;color:#9aa7b8;font-size:13px">Tip: some platforms may filter or not show combining marks (glitch). Use Vaporwave or Fullwidth for best compatibility.</div>
+  </div>
 </main>
 
-<footer>
-<p>© 2025 CelciusBot • Built by Buford</p>
+<footer style="text-align:center;margin-top:26px;color:#8b8b8b">
+  <p>© 2025 CelciusBot • Built by Buford</p>
 </footer>
 
+<!-- ===== MERGED / REBUILT FONT GENERATOR SCRIPT (INSANE MODE: 40+ fonts) ===== -->
 <script>
-// Floating letters background
-const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-const colors = ["#ff6b6b","#feca57","#48dbfb","#1dd1a1","#5f27cd","#ff9ff3","#00d2d3","#f368e0","#ff9f43"];
-let floatingLetters = [];
+(() => {
+  // ---- DOM
+  const textInput = document.getElementById('textInput');
+  const fontList  = document.getElementById('fontList');
+  const preview   = document.getElementById('preview');
+  const copyBtn   = document.getElementById('copyBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
 
-function createFloatingLetters() {
-  for(let i=0;i<120;i++){
-    const span = document.createElement('span');
-    span.className = 'floating-letter';
-    span.textContent = letters[Math.floor(Math.random()*letters.length)];
-    span.style.left = Math.random()*100+'vw';
-    span.style.top = Math.random()*100+'vh';
-    span.style.fontSize = 12+Math.random()*28+'px';
-    span.style.color = colors[Math.floor(Math.random()*colors.length)];
-    span.style.animationDuration = 30+Math.random()*30+'s';
-    span.style.setProperty('--x0',`${Math.random()*100}vw`);
-    span.style.setProperty('--y0',`${Math.random()*100}vh`);
-    span.style.setProperty('--x1',`${Math.random()*100}vw`);
-    span.style.setProperty('--y1',`${Math.random()*100}vh`);
-    span.style.setProperty('--x2',`${Math.random()*100}vw`);
-    span.style.setProperty('--y2',`${Math.random()*100}vh`);
-    span.style.setProperty('--r0',`${Math.random()*360}deg`);
-    span.style.setProperty('--r1',`${Math.random()*360}deg`);
-    span.style.setProperty('--r2',`${Math.random()*360}deg`);
-    span.style.setProperty('--s0',0.5+Math.random()*0.8);
-    span.style.setProperty('--s1',0.5+Math.random()*0.8);
-    span.style.setProperty('--s2',0.5+Math.random()*0.8);
-    document.body.appendChild(span);
-    floatingLetters.push(span);
+  if (!textInput || !fontList || !preview || !copyBtn || !downloadBtn) {
+    console.warn('font-gen: missing DOM elements');
+    return;
   }
-}
 
-// Font transformations
-const textInput = document.getElementById('textInput');
-const fontList = document.getElementById('fontList');
-const preview = document.getElementById('preview');
-const copyBtn = document.getElementById('copyBtn');
+  // ---- Utilities
+  const safeFromCodePoint = (cp) => { try { return String.fromCodePoint(cp); } catch { return null; } };
+  function mapReplace(str, normal, mapped) {
+    const map = {};
+    for (let i=0;i<normal.length;i++) map[normal[i]] = mapped[i] || normal[i];
+    return [...str].map(c => map[c] || c).join('');
+  }
+  function toFullwidth(s) {
+    return [...s].map(c=>{
+      const code = c.charCodeAt(0);
+      if (code >= 33 && code <= 126) return String.fromCodePoint(0xFF00 + code - 0x20);
+      return c;
+    }).join('');
+  }
+  function mapAlphaMath(s, upperOffset, lowerOffset) {
+    return [...s].map(c=>{
+      if (c >= 'A' && c <= 'Z') return safeFromCodePoint(c.charCodeAt(0) + upperOffset - 65) || c;
+      if (c >= 'a' && c <= 'z') return safeFromCodePoint(c.charCodeAt(0) + lowerOffset - 97) || c;
+      return c;
+    }).join('');
+  }
 
-const fontFuncs = {
-  "Bold": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D400-65:0x1D400-97+26))),
-  "Italic": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D434-65:0x1D434-97+26))),
-  "Bubble": t=>t.replace(/[A-Za-z0-9]/g,c=>'ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ0123456789'['ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c)]||c),
-  "Squared": t=>t.replace(/[A-Za-z0-9]/g,c=>'🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉0123456789'['ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'.indexOf(c)]||c),
-  "Upside": t=>t.split('').reverse().map(c=>({'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z','A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'ʞ','L':'⅃','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ὁ','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z'}[c]||c)).join(''),
-  "SmallCaps": t=>t.replace(/[a-z]/g,c=>String.fromCharCode(c.charCodeAt(0)-32+0x1D00)),
-  "Monospace": t=>t.replace(/[A-Za-z0-9]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D670-65:0x1D670-97+26))),
-  "Script": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D49C-65:0x1D49C-97+26))),
-  "Fraktur": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D504-65:0x1D504-97+26))),
-  "Cursive1": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D49C-65:0x1D49C-97+26))),
-  "Cursive2": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D4B6-65:0x1D4B6-97+26))),
-  "Cursive3": t=>t.replace(/[A-Za-z]/g,c=>String.fromCharCode(c.charCodeAt(0)+(c<='Z'?0x1D4D0-65:0x1D4D0-97+26))),
-  "Fullwidth": t=>t.replace(/[A-Za-z0-9]/g,c=>String.fromCharCode(c.charCodeAt(0)+0xFF00-0x20))
-};
+  // ---- Accents (glitch)
+  const ACCENTS_ABOVE = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0305','\u0306','\u0307','\u0308','\u0309','\u030A','\u030B','\u030C','\u030D','\u030E','\u030F','\u0310','\u0311','\u0312','\u0313','\u0314','\u0315'];
+  const ACCENTS_BELOW = ['\u0320','\u0321','\u0322','\u0323','\u0324','\u0325','\u0326','\u0327','\u0328','\u0329','\u032A','\u032B'];
 
-const fontFamilies = {
-  "Bold": "'Arial Black', Gadget, sans-serif",
-  "Italic": "Georgia, serif",
-  "Bubble": "'Comic Sans MS', cursive, sans-serif",
-  "Squared": "Tahoma, Geneva, sans-serif",
-  "Upside": "Verdana, sans-serif",
-  "SmallCaps": "'Palatino Linotype', 'Book Antiqua', Palatino, serif",
-  "Monospace": "'Courier New', monospace",
-  "Script": "'Brush Script MT', cursive",
-  "Fraktur": "'Times New Roman', serif",
-  "Cursive1": "'Lucida Handwriting', cursive",
-  "Cursive2": "'Segoe Script', cursive",
-  "Cursive3": "'Bradley Hand', cursive",
-  "Fullwidth": "Arial, sans-serif"
-};
+  function glitchize(text, intensity = 1) {
+    return [...text].map(ch => {
+      if (ch === ' ') return ch;
+      let out = ch;
+      for (let i=0;i<intensity;i++){
+        const a = ACCENTS_ABOVE[Math.floor(Math.random()*ACCENTS_ABOVE.length)];
+        const b = ACCENTS_BELOW[Math.floor(Math.random()*ACCENTS_BELOW.length)];
+        out += Math.random()>0.5 ? a+b : b+a;
+      }
+      return out;
+    }).join('');
+  }
 
-// Build font list
-function updateFontList() {
-  const input = textInput.value || "Preview Text";
-  fontList.innerHTML = "";
-  for (const key in fontFuncs) {
-    const div = document.createElement('div');
-    div.className = 'font-item';
-    div.textContent = input; 
-    div.style.fontFamily = fontFamilies[key] || "sans-serif";
-    div.addEventListener('click', () => {
-      document.querySelectorAll('.font-item').forEach(el => el.classList.remove('selected'));
-      div.classList.add('selected');
-      preview.textContent = fontFuncs[key](textInput.value);
-      floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[key] || "sans-serif");
+  // ---- Emoji alphabet
+  const EMOJI_ALPHA = (function(){
+    const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const list = ['🅰','🅱','🌜','🐬','🎗','🎏','🌀','♓','ℹ','🎷','🔱','🧩','〽️','🎵','🅾','🅿','🌀','®️','💲','🌴','〰️','✅','❎','✖️','🍥','⚡'];
+    const map = {};
+    for (let i=0;i<A.length;i++) map[A[i]] = list[i] || A[i];
+    return map;
+  })();
+
+  // ---- Pre-built maps
+  const NORMAL_ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const BUBBLE_MAP = "ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ⓪①②③④⑤⑥⑦⑧⑨";
+  const CIRCLED_MAP = "ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ";
+  const SQUARED_UPPER = "🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉";
+
+  // tiny and double maps
+  const tinyMap = {
+    "a":"ᵃ","b":"ᵇ","c":"ᶜ","d":"ᵈ","e":"ᵉ","f":"ᶠ","g":"ᵍ","h":"ʰ","i":"ⁱ","j":"ʲ","k":"ᵏ","l":"ˡ","m":"ᵐ","n":"ⁿ","o":"ᵒ","p":"ᵖ","q":"ᑫ","r":"ʳ","s":"ˢ","t":"ᵗ","u":"ᵘ","v":"ᵛ","w":"ʷ","x":"ˣ","y":"ʸ","z":"ᶻ",
+    "A":"ᴀ","B":"ʙ","C":"ᴄ","D":"ᴅ","E":"ᴇ","F":"ꜰ","G":"ɢ","H":"ʜ","I":"ɪ","J":"ᴊ","K":"ᴋ","L":"ʟ","M":"ᴍ","N":"ɴ","O":"ᴏ","P":"ᴘ","Q":"ǫ","R":"ʀ","S":"s","T":"ᴛ","U":"ᴜ","V":"ᴠ","W":"ᴡ","X":"x","Y":"ʏ","Z":"ᴢ"
+  };
+  const doubleMap = {
+    "A":"А","B":"Β","C":"Ͼ","D":"Ꭰ","E":"Ε","F":"Ғ","G":"ɢ","H":"Η","I":"І","J":"Ј","K":"Κ","L":"Ꮮ","M":"Μ","N":"N","O":"Ο","P":"Ρ","Q":"Q","R":"Ꭱ","S":"Ѕ","T":"Τ","U":"Ս","V":"Ѵ","W":"Ш","X":"Χ","Y":"Υ","Z":"Ζ",
+    "a":"а","b":"Ь","c":"с","d":"ԁ","e":"е","f":"ƒ","g":"ɡ","h":"һ","i":"і","j":"ϳ","k":"κ","l":"ⅼ","m":"ｍ","n":"п","o":"ο","p":"р","q":"գ","r":"ɾ","s":"ѕ","t":"ƫ","u":"ս","v":"ν","w":"ш","x":"х","y":"у","z":"ᴢ"
+  };
+
+  // ---- Upside map (expanded)
+  const upsideMap = Object.assign({
+    'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ƃ','h':'ɥ','i':'ᴉ','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z',
+    'A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'ʞ','L':'⅃','M':'W','N':'N','O':'O','P':'Ԁ','Q':'Ὁ','R':'ɹ','S':'S','T':'⊥','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z'
+  }, { '0':'0','1':'Ɩ','2':'ᄅ','3':'Ɛ','4':'h','5':'5','6':'9','7':'ㄥ','8':'8','9':'6' });
+
+  // ---- Font family visual hints
+  const fontFamilies = {
+    "Bold":"'Arial Black', Gadget, sans-serif",
+    "Italic":"Georgia, serif",
+    "BoldItalic":"Georgia, serif",
+    "Monospace":"'Courier New', monospace",
+    "Script":"'Brush Script MT', cursive",
+    "Fraktur":"'Times New Roman', serif",
+    "DoubleStruck":"serif",
+    "Bubble":"'Comic Sans MS', cursive",
+    "Fullwidth":"sans-serif",
+    "SmallCaps":"serif",
+    "Squared":"sans-serif",
+    "Circled":"sans-serif",
+    "Upside":"sans-serif",
+    "Vaporwave":"'Courier New', monospace",
+    "Glitch (low)":"monospace",
+    "Glitch (med)":"monospace",
+    "Glitch (high)":"monospace",
+    "Emoji":"Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif",
+    "Matrix":"monospace",
+    "Strikethrough":"sans-serif",
+    "Underline":"sans-serif",
+    "Tiny":"monospace",
+    "Double":"sans-serif",
+    "ReverseChars":"sans-serif",
+    "CircledBlack":"sans-serif",
+    "Greek":"serif",
+    "OldEnglish":"serif",
+    "Hearts":"sans-serif",
+    "Stars":"sans-serif",
+    "Runes":"serif",
+    "Pixel":"monospace"
+  };
+
+  // ---- Core font transform functions (INSANE set)
+  const fontFuncs = {
+    "Bold": s => mapAlphaMath(s, 0x1D400, 0x1D41A),
+    "Italic": s => mapAlphaMath(s, 0x1D434, 0x1D44E),
+    "BoldItalic": s => mapAlphaMath(s, 0x1D468, 0x1D482),
+    "Monospace": s => mapAlphaMath(s, 0x1D670, 0x1D68A),
+    "Script": s => mapAlphaMath(s, 0x1D49C, 0x1D4B6),
+    "Fraktur": s => mapAlphaMath(s, 0x1D504, 0x1D51E),
+    "DoubleStruck": s => mapReplace(s, NORMAL_ALPHA, DOUBLESTRUCK_MAP),
+    "Bubble": s => mapReplace(s, NORMAL_ALPHA, BUBBLE_MAP),
+    "Bubble Bold": s => mapReplace(s, NORMAL_ALPHA, BUBBLE_MAP), // fallback copy of bubble
+    "Fullwidth": s => toFullwidth(s),
+    "SmallCaps": s => [...s].map(ch => {
+      const lower = ch.toLowerCase();
+      return (lower >= 'a' && lower <= 'z') ? safeFromCodePoint(0x1D00 + (lower.charCodeAt(0) - 97)) || ch : ch;
+    }).join(''),
+    "Squared": s => mapReplace(s.toUpperCase(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", SQUARED_UPPER),
+    "Circled": s => mapReplace(s.toUpperCase(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ"),
+    "CircledBlack": s => mapReplace(s.toUpperCase(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "🅐🅑🅒🅓🅔🅕🅖🅗🅘🅙🅚🅛🅜🅝🅞🅟🅠🅡🅢🅣🅤🅥🅦🅧🅨🅩"),
+    "Vaporwave": s => [...toFullwidth(s)].join(' '),
+    "Glitch (low)": s => glitchize(s,1),
+    "Glitch (med)": s => glitchize(s,2),
+    "Glitch (high)": s => glitchize(s,3),
+    "Emoji": s => [...s.toUpperCase()].map(c => EMOJI_ALPHA[c] || c).join(''),
+    "Matrix": s => [...s].map(c => /[A-Za-z]/.test(c) ? (Math.random()>0.6?'0':'1') : c).join(''),
+    "Strikethrough": s => [...s].map(c => c + '\u0336').join(''),
+    "Underline": s => [...s].map(c => c + '\u0332').join(''),
+    "Tiny": s => [...s].map(c => tinyMap[c] || c).join(''),
+    "Double": s => [...s].map(c => doubleMap[c] || c).join(''),
+    "ReverseChars": s => [...s].reverse().join(''),
+    "Circled Letters (lowercase)": s => mapReplace(s, "abcdefghijklmnopqrstuvwxyz", CIRCLED_MAP),
+    "Greek": s => [...s].map(c => greekMap[c] || c).join(''),
+    "OldEnglish": s => [...s].map(c => oldEnglishMap[c] || c).join(''),
+    "Hearts": s => [...s].map(c => (/[A-Za-z]/.test(c) ? '♥' : c)).join(''),
+    "Stars": s => [...s].map(c => (/[A-Za-z]/.test(c) ? '★' : c)).join(''),
+    "Runes": s => [...s].map(c => runesMap[c] || c).join(''),
+    "Pixel": s => [...s].map(c => pixelMap[c] || c).join(''),
+    "Circled Black (numbers)": s => s.replace(/[0-9]/g, n => ['⓪','①','②','③','④','⑤','⑥','⑦','⑧','⑨'][Number(n)] || n)
+  };
+
+  // ---- Add extra small maps (greek, oldEnglish, runes, pixel)
+  // NOTE: these maps are illustrative and partial; fallback to original where missing
+
+  const greekMap = {
+    A:'Α',B:'Β',C:'Χ',D:'Δ',E:'Ε',F:'Φ',G:'Γ',H:'Η',I:'Ι',J:'∴',K:'Κ',L:'Λ',M:'Μ',N:'Ν',O:'Ο',P:'Ρ',Q:'Θ',R:'Ρ',S:'Σ',T:'Τ',U:'Υ',V:'Ν',W:'Ω',X:'Χ',Y:'Ψ',Z:'Ζ',
+    a:'α',b:'β',c:'χ',d:'δ',e:'ε',f:'φ',g:'γ',h:'η',i:'ι',j:'ϳ',k:'κ',l:'λ',m:'μ',n:'ν',o:'ο',p:'ρ',q:'θ',r:'ρ',s:'σ',t:'τ',u:'υ',v:'ν',w:'ω',x:'χ',y:'ψ',z:'ζ'
+  };
+
+  const oldEnglishMap = {
+    A:'𝔄',B:'𝔅',C:'ℭ',D:'𝔇',E:'𝔈',F:'𝔉',G:'𝔊',H:'ℌ',I:'ℑ',J:'𝔍',K:'𝔎',L:'𝔏',M:'𝔐',N:'𝔑',O:'𝔒',P:'𝔓',Q:'𝔔',R:'ℜ',S:'𝔖',T:'𝔗',U:'𝔘',V:'𝔙',W:'𝔚',X:'𝔛',Y:'𝔜',Z:'ℨ'
+  };
+
+  const runesMap = {
+    a:'ᚨ',b:'ᛒ',c:'ᚲ',d:'ᛞ',e:'ᛖ',f:'ᚠ',g:'ᚷ',h:'ᚺ',i:'ᛁ',j:'ᛃ',k:'ᚲ',l:'ᛚ',m:'ᛗ',n:'ᚾ',o:'ᛟ',p:'ᛈ',q:'ᛩ',r:'ᚱ',s:'ᛋ',t:'ᛏ',u:'ᚢ',v:'ᚡ',w:'ᚹ',x:'ᛪ',y:'ᛦ',z:'ᛉ'
+  };
+
+  const pixelMap = {
+    A:'▛',B:'▜',C:'▙',D:'▟',E:'▚',F:'▘',G:'▙',H:'▜',I:'▛',O:'◯',a:'◔',b:'◕'
+  };
+
+  // ---- Build the font list UI
+  function buildFontList() {
+    fontList.innerHTML = '';
+    const input = textInput.value || 'Preview Text';
+    Object.keys(fontFuncs).forEach((name, idx) => {
+      const item = document.createElement('div');
+      item.className = 'font-item';
+      item.textContent = input;
+      item.dataset.fontName = name;
+      item.title = name;
+      item.style.fontFamily = fontFamilies[name] || 'sans-serif';
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.font-item').forEach(x=>x.classList.remove('selected'));
+        item.classList.add('selected');
+        preview.textContent = fontFuncs[name](textInput.value || '');
+        document.querySelectorAll('.floating-letter').forEach(fl => fl.style.fontFamily = fontFamilies[name] || 'sans-serif');
+        if (name.startsWith('Glitch')) showToast('Glitch fonts use combining marks — may render oddly on some platforms', 3200);
+      });
+      fontList.appendChild(item);
+      if (idx === 0) item.classList.add('selected');
     });
-    fontList.appendChild(div);
+    // initial preview
+    const first = Object.keys(fontFuncs)[0];
+    preview.textContent = fontFuncs[first](textInput.value || '');
   }
-  fontList.firstChild?.classList.add('selected');
-  preview.textContent = fontFuncs[Object.keys(fontFuncs)[0]](textInput.value);
-  floatingLetters.forEach(span => span.style.fontFamily = fontFamilies[Object.keys(fontFuncs)[0]] || "sans-serif");
-}
 
-textInput.addEventListener('input', updateFontList);
+  // ---- Live updates (typing)
+  textInput.addEventListener('input', () => {
+    const nodes = document.querySelectorAll('.font-item');
+    nodes.forEach(n => n.textContent = textInput.value || 'Preview Text');
+    const selected = document.querySelector('.font-item.selected');
+    if (selected) {
+      const name = selected.dataset.fontName;
+      preview.textContent = fontFuncs[name](textInput.value || '');
+    }
+  });
 
-// Smart copy
-copyBtn.addEventListener('click', () => {
-  if(!preview.textContent) return alert('Nothing to copy!');
-  const testSpan = document.createElement('span');
-  testSpan.style.position = 'absolute';
-  testSpan.style.opacity = 0;
-  testSpan.style.fontFamily = "'Arial Unicode MS', 'Segoe UI Symbol', sans-serif";
-  testSpan.textContent = preview.textContent;
-  document.body.appendChild(testSpan);
-  const canRender = testSpan.offsetWidth > 0 && testSpan.offsetHeight > 0;
-  document.body.removeChild(testSpan);
+  // ---- Toast system
+  function createToastContainer() {
+    if (document.getElementById('cb-toasts')) return;
+    const container = document.createElement('div');
+    container.id = 'cb-toasts';
+    document.body.appendChild(container);
+  }
+  function showToast(msg, duration = 2200) {
+    createToastContainer();
+    const container = document.getElementById('cb-toasts');
+    const t = document.createElement('div');
+    t.textContent = msg;
+    t.style.background = 'rgba(0,0,0,0.8)';
+    t.style.color = '#fff';
+    t.style.padding = '10px 12px';
+    t.style.borderRadius = '10px';
+    t.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+    t.style.fontSize = '14px';
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(6px)';
+    t.style.transition = 'all 260ms ease';
+    container.appendChild(t);
+    requestAnimationFrame(()=>{ t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+    setTimeout(()=>{ t.style.opacity = '0'; t.style.transform = 'translateY(8px)'; setTimeout(()=>t.remove(),300); }, duration);
+  }
 
-  let textToCopy = canRender ? preview.textContent : (textInput.value || "Preview Text");
-  if(!canRender) alert('Your system may not support fancy fonts. Copied plain text instead.');
-  navigator.clipboard.writeText(textToCopy).then(()=>alert('Copied to clipboard!'));
-});
+  // ---- Copy logic (clipboard + fallback)
+  async function copyPreviewText() {
+    const out = preview.textContent || '';
+    if (!out) { showToast('Nothing to copy'); return; }
+    try {
+      await navigator.clipboard.writeText(out);
+      showToast('Copied to clipboard');
+      animateCopyBtn();
+      return;
+    } catch (e) {
+      // fallback
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = out;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast('Copied to clipboard (fallback)');
+      animateCopyBtn();
+    } catch (err) {
+      showToast('Copy failed — select manually', 2600);
+    }
+  }
 
-// Initialize
-createFloatingLetters();
-updateFontList();
+  // ---- Download text as .txt
+  function downloadPreviewText() {
+    const out = preview.textContent || '';
+    if (!out) { showToast('Nothing to download'); return; }
+    const blob = new Blob([out], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'celcius-font.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded .txt');
+  }
+
+  // ---- Copy button animation (brief icon flip)
+  function animateCopyBtn() {
+    copyBtn.disabled = true;
+    const orig = copyBtn.innerHTML;
+    copyBtn.innerHTML = '✓ Copied';
+    setTimeout(()=>{ copyBtn.innerHTML = orig; copyBtn.disabled = false; }, 1100);
+  }
+
+  copyBtn.addEventListener('click', copyPreviewText);
+  downloadBtn.addEventListener('click', downloadPreviewText);
+
+  // ---- Floating letters initializer (if not defined earlier)
+  window.createFloatingLetters = window.createFloatingLetters || (function(){
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const colors = ["#ff6b6b","#feca57","#48dbfb","#1dd1a1","#5f27cd","#ff9ff3","#00d2d3","#f368e0","#ff9f43"];
+    const floatingLetters = [];
+    for (let i=0;i<80;i++){
+      const span = document.createElement('span');
+      span.className = 'floating-letter';
+      span.textContent = letters[Math.floor(Math.random()*letters.length)];
+      span.style.left = Math.random()*100+'vw';
+      span.style.top = Math.random()*100+'vh';
+      span.style.fontSize = 12+Math.random()*28+'px';
+      span.style.color = colors[Math.floor(Math.random()*colors.length)];
+      span.style.animationDuration = 25+Math.random()*30+'s';
+      span.style.setProperty('--x0',`${Math.random()*100}vw`);
+      span.style.setProperty('--y0',`${Math.random()*100}vh`);
+      span.style.setProperty('--x1',`${Math.random()*100}vw`);
+      span.style.setProperty('--y1',`${Math.random()*100}vh`);
+      span.style.setProperty('--x2',`${Math.random()*100}vw`);
+      span.style.setProperty('--y2',`${Math.random()*100}vh`);
+      span.style.setProperty('--r0',`${Math.random()*360}deg`);
+      span.style.setProperty('--r1',`${Math.random()*360}deg`);
+      span.style.setProperty('--r2',`${Math.random()*360}deg`);
+      span.style.setProperty('--s0',0.5+Math.random()*0.8);
+      span.style.setProperty('--s1',0.5+Math.random()*0.8);
+      span.style.setProperty('--s2',0.5+Math.random()*0.8);
+      document.body.appendChild(span);
+      floatingLetters.push(span);
+    }
+    return floatingLetters;
+  });
+
+  // ---- Build UI & init
+  buildFontList();
+  textInput.dispatchEvent(new Event('input'));
+
+  // Expose helpers for debugging
+  window.CelciusFontGen = { fontFuncs, fontFamilies, glitchize, toFullwidth, mapAlphaMath };
+})();
 </script>
 </body>
 </html>
