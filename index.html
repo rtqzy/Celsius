@@ -1,119 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CelciusBot – Online Tools</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CelciusBot – Online Tools</title>
+<meta name="description" content="CelciusBot — free online utilities. Theme adapts to your local weather (Open-Meteo, no API key)." />
 
+<!-- Main CSS (base) -->
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- Inline theme + widget CSS (keeps everything self-contained until you want to move to CSS file) -->
+<style>
+  :root{
+    --bg1: #071026;
+    --bg2: #0f172a;
+    --card: rgba(255,255,255,0.03);
+    --accent: #38bdf8;
+    --text: #e6eef8;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--text);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:28px auto;padding:18px}
+
+  header{
+    display:flex;
+    gap:18px;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px;
+    border-radius:14px;
+    position:relative;
+    overflow:visible;
+    background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border:1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 8px 30px rgba(2,6,23,0.55);
+  }
+
+  .brand {
+    display:flex;align-items:center;gap:12px;
+  }
+  .brand .logo {
+    width:56px;height:56px;border-radius:12px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    border:1px solid rgba(255,255,255,0.04);
+  }
+  .brand h1{font-size:20px;margin:0;color:var(--accent)}
+  .brand p{margin:0;color:#9aa7b8;font-size:13px}
+
+  /* weather box */
+  .weather {
+    display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);
+    min-width:220px;justify-content:center;
+  }
+  .weather .emoji{font-size:22px}
+  .weather .temp{font-weight:700;font-size:18px}
+  .weather .loc{color:#a7b6c4;font-size:13px}
+
+  /* small animated overlays */
+  .overlay { position:fixed; inset:0; pointer-events:none; z-index:2; mix-blend-mode:screen; }
+
+  /* rain */
+  .rain { --r: rgba(255,255,255,0.04); position:absolute; inset:0; overflow:hidden; }
+  .raindrop { position:absolute; width:2px; height:18px; background:linear-gradient(180deg,var(--r), rgba(255,255,255,0)); opacity:0.6; transform:translateY(-120%); animation:fall linear infinite; }
+  @keyframes fall { to { transform: translateY(120vh); opacity:0.2 } }
+
+  /* snow */
+  .snow { position:absolute; inset:0; overflow:hidden; }
+  .flake { position:absolute; width:8px;height:8px;border-radius:50%; background:rgba(255,255,255,0.9); opacity:0.9; transform:translateY(-120%); animation:sfall linear infinite; }
+  @keyframes sfall { to { transform: translateY(120vh) rotate(180deg); opacity:0.6 } }
+
+  /* sun glow */
+  .sun-glow { position:absolute; right:18%; top:6%; width:220px; height:220px; border-radius:50%; filter:blur(36px); opacity:0.28; background: radial-gradient(circle at center, rgba(255,210,105,0.9), rgba(255,120,40,0.05)); pointer-events:none; }
+
+  /* cloud soft */
+  .clouds { position:absolute; inset:0; background-image: url('/mnt/data/4460a265-7441-4b04-93c9-050944a62711.png'); background-repeat:no-repeat; background-position: 80% 5%; background-size:320px; opacity:0.06; }
+
+  /* Tools grid + cards */
+  main{margin-top:18px}
+  .tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+  .tool-card{display:block;padding:18px;border-radius:12px;background:var(--card);text-decoration:none;color:var(--text);border:1px solid rgba(255,255,255,0.02)}
+  .tool-card h2{margin:0 0 6px}
+  .tool-card p{margin:0;color:#9aa7b8;font-size:14px}
+
+  footer{margin-top:28px;text-align:center;color:#8b98a8;font-size:13px}
+
+  /* THEME VARIANTS */
+  body.theme-sunny { --bg1:#FFF7E6; --bg2:#FFEFCC; color:#111; }
+  body.theme-sunny header{ background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.45)); }
+  body.theme-sunny .tool-card{ background: rgba(255,255,255,0.9); color:#111; border-color: rgba(0,0,0,0.06) }
+
+  body.theme-cloudy { --bg1:#cfe6ff; --bg2:#9fbfe0; }
+  body.theme-cloudy .clouds{ opacity:0.12 }
+
+  body.theme-rain { --bg1:#1f2a44; --bg2:#091428; color:#dfeeff; }
+  body.theme-storm { --bg1:#0a0b0f; --bg2:#1b1230; color:#e9e9f0 }
+  body.theme-snow { --bg1:#eaf6ff; --bg2:#dff1ff; color:#083047 }
+  body.theme-fog { --bg1:#cfcfcf; --bg2:#d9d9d9; color:#222 }
+
+  /* small responsiveness */
+  @media(max-width:760px){
+    header{flex-direction:column;align-items:flex-start;gap:12px}
+    .weather{min-width:unset;align-self:flex-end}
+  }
+</style>
+</head>
 <body>
-    <header>
-        <h1>🔥 CelciusBot Tools</h1>
-        <p>Your all-in-one utility toolbox — fast, free, and lightweight.</p>
+  <div class="overlay" id="weatherOverlay" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header id="siteHeader">
+      <div class="brand">
+        <div class="logo" id="logoEl" title="CelciusBot">
+          <!-- Using uploaded image as subtle graphic (local path) -->
+          <img src="/mnt/data/4460a265-7441-4b04-93c9-050944a62711.png" alt="CelciusBot" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div>
+          <h1>🔥 CelciusBot</h1>
+          <div style="color:#9aa7b8;font-size:13px">Your all-in-one utility toolbox — theme matches your local weather.</div>
+        </div>
+      </div>
+
+      <div id="weatherBox" class="weather" aria-live="polite">
+        <div class="emoji">⏳</div>
+        <div>
+          <div class="temp">Detecting…</div>
+          <div class="loc">Allow location to theme CelciusBot</div>
+        </div>
+      </div>
     </header>
 
     <main>
+      <!-- Tools grid (kept from your file) -->
+      <section class="tool-grid">
+        <a href="yt-mp3.html" class="tool-card new priority">
+          <h2>YouTube → MP3</h2><p>Convert YouTube videos to MP3 audio.</p>
+        </a>
 
-        <!-- 🔥 MOST USED TOOLS FIRST -->
-        <section class="tool-grid">
+        <a href="font-generator/font-gen.html" class="tool-card new priority">
+          <h2>Font Generator</h2><p>Create fancy Unicode text styles.</p>
+        </a>
+      </section>
 
-            <!-- NEW: YouTube to MP3 (TOP SPOT) -->
-            <a href="yt-mp3.html" class="tool-card new priority">
-                <h2>YouTube → MP3</h2>
-                <p>Convert YouTube videos to MP3 audio.</p>
-            </a>
-
-            <!-- NEW: Font Generator (SECOND SPOT) -->
-            <a href="font-generator/font-gen.html" class="tool-card new priority">
-                <h2>Font Generator</h2>
-                <p>Create fancy Unicode text styles.</p>
-            </a>
-
-        </section>
-
-        <!-- 🔧 Regular Tools Section -->
-        <section class="tool-grid">
-
-            <!-- QR Code Generator -->
-            <a href="qr-code/qr.html" class="tool-card">
-                <h2>QR Code Generator</h2>
-                <p>Create downloadable QR codes instantly.</p>
-            </a>
-
-            <!-- Image Tools -->
-            <a href="image.html" class="tool-card">
-                <h2>Image Converter</h2>
-                <p>Resize, compress, and convert PNG/JPG.</p>
-            </a>
-
-            <!-- Video Resizer -->
-            <a href="video.html" class="tool-card">
-                <h2>Video Resizer</h2>
-                <p>Resize videos for Discord, TikTok, Instagram.</p>
-            </a>
-
-            <!-- Link Shortener -->
-            <a href="shortener.html" class="tool-card">
-                <h2>Link Shortener</h2>
-                <p>Create short, shareable links.</p>
-            </a>
-
-            <!-- Essay Improver -->
-            <a href="essay.html" class="tool-card">
-                <h2>Essay Humanizer</h2>
-                <p>Make AI text sound naturally human.</p>
-            </a>
-
-            <!-- Password Generator -->
-            <a href="password.html" class="tool-card">
-                <h2>Password Generator</h2>
-                <p>Secure, random passwords.</p>
-            </a>
-
-            <!-- Random Name Generator -->
-            <a href="names.html" class="tool-card">
-                <h2>Name Generator</h2>
-                <p>Generate character or username ideas.</p>
-            </a>
-
-            <!-- Word Counter -->
-            <a href="wordcount.html" class="tool-card">
-                <h2>Word Counter</h2>
-                <p>Count words, characters & reading time.</p>
-            </a>
-
-            <!-- Color Picker -->
-            <a href="color.html" class="tool-card">
-                <h2>Color Picker</h2>
-                <p>Pick HEX, RGB, and HSL colors.</p>
-            </a>
-
-            <!-- Unit Converter -->
-            <a href="unit.html" class="tool-card">
-                <h2>Unit Converter</h2>
-                <p>Convert distance, weight, temperature.</p>
-            </a>
-
-            <!-- Meme Resizer -->
-            <a href="meme.html" class="tool-card">
-                <h2>Meme Resizer</h2>
-                <p>Resize memes for any platform.</p>
-            </a>
-
-            <!-- PDF Tools -->
-            <a href="pdf.html" class="tool-card">
-                <h2>PDF Tools</h2>
-                <p>Merge, split & compress PDFs.</p>
-            </a>
-
-        </section>
+      <section class="tool-grid" style="margin-top:18px">
+        <a href="qr-code/qr.html" class="tool-card"><h2>QR Code Generator</h2><p>Create downloadable QR codes instantly.</p></a>
+        <a href="image.html" class="tool-card"><h2>Image Converter</h2><p>Resize, compress, convert PNG/JPG.</p></a>
+        <a href="video.html" class="tool-card"><h2>Video Resizer</h2><p>Resize videos for Discord, TikTok, Instagram.</p></a>
+        <a href="shortener.html" class="tool-card"><h2>Link Shortener</h2><p>Create short, shareable links.</p></a>
+        <a href="essay.html" class="tool-card"><h2>Essay Humanizer</h2><p>Make AI text sound naturally human.</p></a>
+        <a href="password.html" class="tool-card"><h2>Password Generator</h2><p>Secure, random passwords.</p></a>
+        <a href="names.html" class="tool-card"><h2>Name Generator</h2><p>Generate character or username ideas.</p></a>
+        <a href="wordcount.html" class="tool-card"><h2>Word Counter</h2><p>Count words, characters & reading time.</p></a>
+        <a href="color.html" class="tool-card"><h2>Color Picker</h2><p>Pick HEX, RGB, and HSL colors.</p></a>
+        <a href="unit.html" class="tool-card"><h2>Unit Converter</h2><p>Convert distance, weight, temperature.</p></a>
+        <a href="meme.html" class="tool-card"><h2>Meme Resizer</h2><p>Resize memes for any platform.</p></a>
+        <a href="pdf.html" class="tool-card"><h2>PDF Tools</h2><p>Merge, split & compress PDFs.</p></a>
+      </section>
 
     </main>
 
     <footer>
-        <p>© 2025 CelciusBot • Built by Buford</p>
+      <p>© 2025 CelciusBot • Built by Buford</p>
     </footer>
+  </div>
 
+  <!-- ===== Open-Meteo weather + theme script (no API key) ===== -->
+  <script>
+  (function(){
+    const weatherBox = document.getElementById('weatherBox');
+    const weatherOverlay = document.getElementById('weatherOverlay');
+    const body = document.body;
+
+    function setWeatherUI({tempC, code, cityName}) {
+      const emoji = codeToEmoji(code);
+      const theme = codeToTheme(code);
+      // apply theme class
+      document.body.classList.remove('theme-sunny','theme-cloudy','theme-rain','theme-storm','theme-snow','theme-fog');
+      document.body.classList.add('theme-' + theme);
+
+      // set weatherBox content
+      weatherBox.querySelector('.emoji').textContent = emoji;
+      weatherBox.querySelector('.temp').innerHTML = Math.round(tempC) + '°C';
+      weatherBox.querySelector('.loc').textContent = cityName || 'Your location';
+
+      // setup overlay visuals
+      renderOverlayForTheme(theme);
+    }
+
+    function codeToEmoji(code){
+      if (code >= 200 && code < 300) return '⛈️';
+      if (code >= 300 && code < 600) return '🌧️';
+      if (code >= 600 && code < 700) return '❄️';
+      if (code >= 700 && code < 800) return '🌫️';
+      if (code === 800) return '☀️';
+      if (code === 801 || code === 802) return '🌤️';
+      return '☁️';
+    }
+
+    function codeToTheme(code){
+      if (code >= 200 && code < 300) return 'storm';
+      if (code >= 300 && code < 600) return 'rain';
+      if (code >= 600 && code < 700) return 'snow';
+      if (code >= 700 && code < 800) return 'fog';
+      if (code === 800) return 'sunny';
+      if (code === 801 || code === 802) return 'cloudy';
+      return 'cloudy';
+    }
+
+    function clearOverlay(){
+      weatherOverlay.innerHTML = '';
+      weatherOverlay.style.opacity = '1';
+    }
+
+    function renderOverlayForTheme(theme){
+      clearOverlay();
+      if (theme === 'rain' || theme === 'storm') {
+        // create many raindrops
+        const rainLayer = document.createElement('div');
+        rainLayer.className = 'rain';
+        for (let i=0;i<70;i++){
+          const d = document.createElement('div');
+          d.className = 'raindrop';
+          const left = Math.random()*100;
+          d.style.left = left + 'vw';
+          d.style.top = (-Math.random()*30) + 'vh';
+          d.style.height = 8 + Math.random()*26 + 'px';
+          d.style.opacity = 0.2 + Math.random()*0.6;
+          d.style.animationDuration = 0.9 + Math.random()*1.6 + 's';
+          d.style.animationDelay = (-Math.random()*2) + 's';
+          rainLayer.appendChild(d);
+        }
+        weatherOverlay.appendChild(rainLayer);
+
+        if (theme === 'storm') {
+          // lightning flashes
+          const flash = document.createElement('div');
+          flash.style.position='absolute';
+          flash.style.inset='0';
+          flash.style.pointerEvents='none';
+          flash.style.animation='flash 6s linear infinite';
+          flash.style.opacity=0.0;
+          flash.style.background='linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0))';
+          weatherOverlay.appendChild(flash);
+          // minimal flash keyframes injected
+          const style = document.createElement('style');
+          style.textContent = '@keyframes flash { 0%,96%{opacity:0} 97%{opacity:0.8} 98%{opacity:0.05} 99%{opacity:0.9} 100%{opacity:0} }';
+          document.head.appendChild(style);
+        }
+        return;
+      }
+
+      if (theme === 'snow') {
+        const snowLayer = document.createElement('div');
+        snowLayer.className = 'snow';
+        for (let i=0;i<50;i++){
+          const f = document.createElement('div');
+          f.className = 'flake';
+          f.style.left = Math.random()*100 + 'vw';
+          f.style.top = (-Math.random()*40) + 'vh';
+          f.style.width = 6 + Math.random()*10 + 'px';
+          f.style.height = f.style.width;
+          f.style.opacity = 0.6 + Math.random()*0.4;
+          f.style.animationDuration = 6 + Math.random()*6 + 's';
+          f.style.animationDelay = (-Math.random()*3) + 's';
+          snowLayer.appendChild(f);
+        }
+        weatherOverlay.appendChild(snowLayer);
+        return;
+      }
+
+      if (theme === 'sunny') {
+        const sun = document.createElement('div');
+        sun.className = 'sun-glow';
+        weatherOverlay.appendChild(sun);
+        return;
+      }
+
+      if (theme === 'cloudy') {
+        const cloud = document.createElement('div');
+        cloud.className = 'clouds';
+        weatherOverlay.appendChild(cloud);
+        return;
+      }
+
+      if (theme === 'fog') {
+        const fog = document.createElement('div');
+        fog.style.position='absolute';
+        fog.style.inset='0';
+        fog.style.background='linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.03))';
+        fog.style.opacity='0.12';
+        weatherOverlay.appendChild(fog);
+        return;
+      }
+    }
+
+    // ---- Fetch weather from Open-Meteo (no API key)
+    function fetchWeather(lat, lon) {
+      // Open-Meteo current weather endpoint
+      // we ask for current_weather (temp, wind) and weathercode; if timezone needed we can add.
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+      fetch(url).then(r => r.json()).then(data => {
+        if (!data || !data.current_weather) {
+          weatherBox.querySelector('.emoji').textContent = '❓';
+          weatherBox.querySelector('.temp').textContent = 'N/A';
+          weatherBox.querySelector('.loc').textContent = 'Weather unavailable';
+          return;
+        }
+        // Open-Meteo returns temperature and weathercode
+        const cw = data.current_weather;
+        const tempC = cw.temperature;
+        const code = cw.weathercode; // open-meteo weathercode
+        // Map Open-Meteo weathercodes to approximate groups:
+        // codes: https://open-meteo.com/en/docs#api_form
+        // 0: clear, 1-3: mainly clear/ partly cloudy / overcast, 45-48 fog, 51-67 drizzle/rain, 71-77 snow, 80-86 rain showers, 95-99 thunderstorm
+        let mappedCode = 800; // default clear
+        if (code === 0) mappedCode = 800;
+        else if (code >= 1 && code <= 3) mappedCode = 801;
+        else if (code === 45 || code === 48) mappedCode = 741; // fog (use generic)
+        else if (code >= 51 && code <= 67) mappedCode = 500; // rain
+        else if (code >= 71 && code <= 77) mappedCode = 600; // snow
+        else if (code >= 80 && code <= 86) mappedCode = 501; // showers
+        else if (code >= 95 && code <= 99) mappedCode = 200; // thunderstorm
+        // city/place — Open-Meteo doesn't return city name here; we can reverse geocode optionally.
+        // For privacy & zero-backend, we'll try a simple geocoding free endpoint OR show coords.
+        let cityName = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+        // Try a quick reverse geocode (nominatim) to get a human city — free but rate-limited.
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+          .then(r => r.json())
+          .then(loc => {
+            if (loc && (loc.city || loc.town || loc.village || loc.county || loc.state)) {
+              cityName = loc.city || loc.town || loc.village || loc.county || loc.state;
+            }
+            setWeatherUI({ tempC, code: mappedCode, cityName });
+          })
+          .catch(() => setWeatherUI({ tempC, code: mappedCode, cityName }));
+      }).catch(err => {
+        console.error('Open-Meteo fetch failed', err);
+        weatherBox.querySelector('.emoji').textContent = '❌';
+        weatherBox.querySelector('.temp').textContent = 'N/A';
+        weatherBox.querySelector('.loc').textContent = 'Weather unavailable';
+      });
+    }
+
+    // ---- Get user location and kick off
+    function init() {
+      if (!navigator.geolocation) {
+        weatherBox.querySelector('.emoji').textContent = '📡';
+        weatherBox.querySelector('.temp').textContent = 'No geo';
+        weatherBox.querySelector('.loc').textContent = 'Enable location';
+        return;
+      }
+      // ask for permission and fetch weather
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        weatherBox.querySelector('.emoji').textContent = '⏳';
+        weatherBox.querySelector('.temp').textContent = 'Loading…';
+        weatherBox.querySelector('.loc').textContent = 'Fetching...';
+        fetchWeather(lat, lon);
+      }, (err) => {
+        console.warn('geolocation denied or failed', err);
+        weatherBox.querySelector('.emoji').textContent = '🚫';
+        weatherBox.querySelector('.temp').textContent = 'Location blocked';
+        weatherBox.querySelector('.loc').textContent = 'Allow location to theme site';
+        // fallback: detect approximate location via IP (free, but not required). We'll skip to preserve privacy.
+      }, { enableHighAccuracy: false, maximumAge: 1000 * 60 * 10, timeout: 8000 });
+    }
+
+    // start
+    init();
+
+  })();
+  </script>
 </body>
 </html>
